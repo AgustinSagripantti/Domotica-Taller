@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Domotica Taller</title>
+      <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+    button {
+      font-size: 20px;
+      padding: 15px 30px;
+      margin: 10px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .on {
+      background-color: green;
+      color: white;
+    }
+    .off {
+      background-color: red;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+    <button class="on" onclick="encender()">Encender LED</button>
+  <button class="off" onclick="apagar()">Apagar LED</button>
+
+  <script>
+    const ipESP32 = "http://192.168.0.15/"; // 👈 reemplazá con la IP real de tu ESP
+
+    function encender() {
+      fetch(`${ipESP32}led/on`)
+        .then(() => alert("LED encendido"))
+        .catch(err => alert("Error al conectar con el ESP"));
+    }
+
+    function apagar() {
+      fetch(`${ipESP32}led/off`)
+        .then(() => alert("LED apagado"))
+        .catch(err => alert("Error al conectar con el ESP"));
+    }
+  </script>
+</body>
+</html>
