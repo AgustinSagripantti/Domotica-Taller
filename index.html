@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Domotica Taller</title>
-      <style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Domotica Taller</title>
+  <style>
     body {
       font-family: sans-serif;
       text-align: center;
@@ -26,14 +26,22 @@
       background-color: red;
       color: white;
     }
+    .precios {
+      margin-top: 40px;
+      font-size: 18px;
+    }
   </style>
 </head>
 <body>
-    <button class="on" onclick="encender()">Encender LED</button>
+  <button class="on" onclick="encender()">Encender LED</button>
   <button class="off" onclick="apagar()">Apagar LED</button>
 
+  <div class="precios" id="precios">
+    Cargando precios...
+  </div>
+
   <script>
-    const ipESP32 = "http://192.168.0.15/"; // 👈 reemplazá con la IP real de tu ESP
+    const ipESP32 = "http://192.168.0.15/";
 
     function encender() {
       fetch(`${ipESP32}led/on`)
@@ -46,6 +54,52 @@
         .then(() => alert("LED apagado"))
         .catch(err => alert("Error al conectar con el ESP"));
     }
+
+    async function enviarPrecios(precios){
+      try {
+    const res = await fetch(`${ipESP32}criptos`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(precios)
+    });
+
+    if (!res.ok) throw new Error('Error al enviar precios al ESP');
+    console.log('Precios enviados correctamente al ESP');
+  } catch (e) {
+    console.error(e);
+  }
+    }
+
+    async function cargarPrecios() {
+      try {
+        const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,ripple,hedera-hashgraph&vs_currencies=usd");
+        const data = await res.json();
+
+        const precios = {
+          btc:data.bitcoin.usd,
+          eth:data.ethereum.usd,
+          xrp:data.ripple.usd,
+          hbar:data["hedera-hashgraph"].usd
+        }
+         
+        enviarPrecios(precios);
+
+      /*  document.getElementById("precios").innerHTML = `
+          <strong>Precios en USD:</strong><br/>
+          BTC: $${btc}<br/>
+          ETH: $${eth}<br/>
+          XRP: $${xrp}<br/>
+          HBAR: $${hbar}
+        `;*/
+      } catch (e) {
+        document.getElementById("precios").innerText = "Error al cargar precios";
+      }
+    }
+
+    cargarPrecios();
+    setInterval(cargarPrecios, 60000); 
   </script>
 </body>
 </html>
